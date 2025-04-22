@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure DevOps Deployment Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .header {
+            background-color: #0078d4;
+            color: white;
+            padding: 15px 0;
+        }
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            border: none;
+        }
+        .filter-card {
+            padding: 20px;
+        }
+        .stats-card {
+            padding: 20px;
+            border-left: 5px solid transparent;
+        }
+        .stats-card h2 {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .total-card {
+            border-left-color: #0078d4;
+        }
+        .success-card {
+            border-left-color: #107c10;
+        }
+        .failed-card {
+            border-left-color: #d13438;
+        }
+        .chart-card {
+            padding: 20px;
+            height: 360px;
+        }
+        .search-box {
+            border-radius: 20px;
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            width: 300px;
+        }
+        .btn-azure {
+            background-color: #0078d4;
+            color: white;
+            border-radius: 4px;
+        }
+        .btn-azure:hover {
+            background-color: #106ebe;
+            color: white;
+        }
+        .badge-success {
+            background-color: #107c10;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .badge-failed {
+            background-color: #d13438;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .deployment-card {
+            border-left: 5px solid transparent;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+        .deployment-card:hover {
+            transform: translateX(5px);
+        }
+        .success-border {
+            border-left-color: #107c10;
+        }
+        .failed-border {
+            border-left-color: #d13438;
+        }
+        .environment-badge {
+            background-color: #f0f0f0;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        .circle-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        .circle-total {
+            background-color: #e1f1ff;
+            color: #0078d4;
+        }
+        .circle-success {
+            background-color: #dff6dd;
+            color: #107c10;
+        }
+        .circle-failed {
+            background-color: #fde7e9;
+            color: #d13438;
+        }
+        .filter-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0"><i class="fas fa-th me-2"></i> Azure DevOps Deployment Dashboard</h4>
+            </div>
+            <div class="d-flex align-items-center">
+                <input type="text" class="search-box me-3" placeholder="Search deployments...">
+                <button class="btn btn-light"><i class="fas fa-sync-alt me-2"></i> Refresh</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Filters Section -->
+        <div class="card filter-card">
+            <h5 class="mb-3">Filter Deployments</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="filter-label">Project</label>
+                    <select class="form-select">
+                        <option>All Projects</option>
+                        <option>E-Commerce Platform</option>
+                        <option>Customer Portal</option>
+                        <option>Inventory System</option>
+                        <option>Payment Gateway</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="filter-label">Environment</label>
+                    <select class="form-select">
+                        <option>All Environments</option>
+                        <option>Dev</option>
+                        <option>Test</option>
+                        <option>Prod</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="filter-label">Start Date</label>
+                    <input type="date" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="filter-label">End Date</label>
+                    <input type="date" class="form-control">
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-4">
+                <button class="btn btn-light me-2">Reset</button>
+                <button class="btn btn-azure">Apply Filters</button>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card stats-card total-card">
+                    <div class="d-flex align-items-center">
+                        <div class="circle-icon circle-total">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div>
+                            <p class="mb-1">Total Deployments</p>
+                            <h2>8</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stats-card success-card">
+                    <div class="d-flex align-items-center">
+                        <div class="circle-icon circle-success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>
+                            <p class="mb-1">Successful</p>
+                            <h2>5</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stats-card failed-card">
+                    <div class="d-flex align-items-center">
+                        <div class="circle-icon circle-failed">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div>
+                            <p class="mb-1">Failed</p>
+                            <h2>3</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="card chart-card">
+                    <h5 class="mb-4">Deployments by Environment</h5>
+                    <div id="environmentChart" style="height: 280px; position: relative;">
+                        <!-- Chart will be rendered here by JavaScript -->
+                        <canvas id="envChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card chart-card">
+                    <h5 class="mb-4">Deployment Status Trend</h5>
+                    <div id="statusChart" style="height: 280px; position: relative;">
+                        <!-- Chart will be rendered here by JavaScript -->
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Deployments -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0">Recent Deployments</h5>
+                    <div class="d-flex align-items-center">
+                        <span class="me-2">Sort by:</span>
+                        <select class="form-select form-select-sm" style="width: auto;">
+                            <option>Date (Newest First)</option>
+                            <option>Date (Oldest First)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Deployment List -->
+                <div class="deployment-list">
+                    <!-- Deployment Item 1 -->
+                    <div class="card deployment-card success-border">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h5 class="mb-1">E-Commerce Platform</h5>
+                                    <p class="text-muted mb-2">Frontend Deployment</p>
+                                    <span class="badge badge-success me-2">Success</span>
+                                    <span class="environment-badge">Prod</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="mb-1 small"><i class="far fa-calendar-alt me-2"></i> 6/15/2023, 5:30:00 PM</p>
+                                    <p class="mb-0 small"><i class="far fa-user me-2"></i> Jane Doe</p>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deployment Item 2 -->
+                    <div class="card deployment-card failed-border">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h5 class="mb-1">E-Commerce Platform</h5>
+                                    <p class="text-muted mb-2">Backend Deployment</p>
+                                    <span class="badge badge-failed me-2">Failed</span>
+                                    <span class="environment-badge">Test</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="mb-1 small"><i class="far fa-calendar-alt me-2"></i> 6/14/2023, 2:15:00 PM</p>
+                                    <p class="mb-0 small"><i class="far fa-user me-2"></i> John Smith</p>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deployment Item 3 -->
+                    <div class="card deployment-card success-border">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h5 class="mb-1">Customer Portal</h5>
+                                    <p class="text-muted mb-2">Full Stack Deployment</p>
+                                    <span class="badge badge-success me-2">Success</span>
+                                    <span class="environment-badge">Dev</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="mb-1 small"><i class="far fa-calendar-alt me-2"></i> 6/13/2023, 12:45:00 PM</p>
+                                    <p class="mb-0 small"><i class="far fa-user me-2"></i> Auto Deployment</p>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deployment Item 4 -->
+                    <div class="card deployment-card success-border">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h5 class="mb-1">Inventory System</h5>
+                                    <p class="text-muted mb-2">Database Migration</p>
+                                    <span class="badge badge-success me-2">Success</span>
+                                    <span class="environment-badge">Prod</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="mb-1 small"><i class="far fa-calendar-alt me-2"></i> 6/12/2023, 7:20:00 PM</p>
+                                    <p class="mb-0 small"><i class="far fa-user me-2"></i> Mike Johnson</p>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deployment Item 5 -->
+                    <div class="card deployment-card failed-border">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h5 class="mb-1">Payment Gateway</h5>
+                                    <p class="text-muted mb-2">Microservice Deployment</p>
+                                    <span class="badge badge-failed me-2">Failed</span>
+                                    <span class="environment-badge">Test</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="mb-1 small"><i class="far fa-calendar-alt me-2"></i> 6/11/2023, 4:10:00 PM</p>
+                                    <p class="mb-0 small"><i class="far fa-user me-2"></i> Sarah Williams</p>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary me-2">Previous</button>
+                        <button class="btn btn-sm btn-outline-secondary">Next</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-azure">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chart.js Implementation -->
+    <script>
+        // Wait for document to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Environment Distribution Chart
+            const envCtx = document.getElementById('envChart').getContext('2d');
+            window.envChart = new Chart(envCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Production', 'Test', 'Development'],
+                    datasets: [{
+                        data: [3, 3, 2],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.8)',  // Blue for Production
+                            'rgba(255, 206, 86, 0.8)',   // Yellow for Test
+                            'rgba(75, 192, 192, 0.8)'    // Green for Development
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Deployment Status Trend Chart
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            window.trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['6/11', '6/12', '6/13', '6/14', '6/15'],
+                    datasets: [
+                        {
+                            label: 'Successful',
+                            data: [1, 1, 1, 0, 2],
+                            borderColor: 'rgba(40, 167, 69, 1)',
+                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Failed',
+                            data: [1, 0, 0, 1, 0],
+                            borderColor: 'rgba(220, 53, 69, 1)',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                stepSize: 1
+                            },
+                            title: {
+                                display: true,
+                                text: 'Number of Deployments'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    
+    <!-- Custom JavaScript -->
+    <script src="/static/js/dashboard_new.js"></script>
+</body>
+</html> 

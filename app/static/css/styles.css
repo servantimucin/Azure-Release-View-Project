@@ -1,0 +1,176 @@
+/* Custom Dashboard Styles */
+:root {
+  --azure-100: #0078d4;
+  --azure-200: #106ebe;
+  --azure-300: #005a9e;
+  --azure-400: #004578;
+  --azure-500: #203761;
+  --success: #2e7d32;
+  --error: #d32f2f;
+  --warning: #ed6c02;
+}
+
+/* Add transition effect to all elements */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Apply Azure blue to links and buttons */
+.text-azure-100 {
+  color: var(--azure-100);
+}
+
+.text-azure-200 {
+  color: var(--azure-200);
+}
+
+.bg-azure-100 {
+  background-color: var(--azure-100);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-error {
+  color: var(--error);
+}
+
+.text-warning {
+  color: var(--warning);
+}
+
+/* Card hover effects */
+.deployment-card {
+  border-left: 3px solid transparent;
+}
+
+.deployment-card:hover {
+  border-left-color: var(--azure-100);
+  transform: translateX(2px);
+}
+
+/* Status badge animations */
+.status-badge i.fa-sync-alt {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Chart containers */
+.chart-container {
+  height: 280px;
+  position: relative;
+}
+
+/* Loading animation */
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin: 100px auto;
+  border-radius: 50%;
+  border: 4px solid rgba(0, 120, 212, 0.2);
+  border-top-color: var(--azure-100);
+  animation: spin 1s infinite linear;
+}
+
+/* Filter area styles */
+.filter-area {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Modal styling */
+.modal-content {
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+}
+
+/* Stats card effects */
+.stats-card {
+  border-bottom: 3px solid transparent;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card.total-card:hover {
+  border-bottom-color: var(--azure-100);
+}
+
+.stats-card.success-card:hover {
+  border-bottom-color: var(--success);
+}
+
+.stats-card.failed-card:hover {
+  border-bottom-color: var(--error);
+}
+
+/* Footer styling */
+footer a {
+  color: var(--azure-100);
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: var(--azure-200);
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chart-container {
+    height: 220px;
+  }
+  
+  .filter-area {
+    flex-direction: column;
+  }
+  
+  .stats-card {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .chart-container {
+    height: 180px;
+  }
+  
+  .deployment-card {
+    margin-bottom: 1rem;
+  }
+} 
